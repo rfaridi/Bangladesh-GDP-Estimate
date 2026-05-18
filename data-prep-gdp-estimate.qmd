@@ -1,0 +1,247 @@
+---
+title: "BD GDP estimate"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+```
+
+
+# Sheet 1: GDP
+
+```{r}
+sheet_path <- "https://docs.google.com/spreadsheets/d/1sjlFBN7OtLp40IEj3qQWhFbkEeAkPOWhvoLd-25nOEc/"
+gdp_bd <- read_sheet(ss=sheet_path, sheet = "GDP",
+                     skip = 29,col_names = c("year","gdp16","gnp","gdp"))
+
+```
+
+```{r}
+library(tsibble)
+gdp_ts <- tsibble(gdp_bd,index = year)
+gdp_ts
+```
+
+
+
+```{r}
+glimpse(gdp_ts)
+```
+
+```{r}
+gdp_ts %>% 
+  mutate(gdp_gr = (gdp / lag(gdp) - 1))
+```
+# Sheet 2: Export and Import 
+
+```{r}
+exim_bd <- read_sheet(ss=sheet_path, sheet = "EXIM",
+                     skip = 29, col_names =       c("month","ex_index","imp_index","export","import")) |> 
+      mutate(month=yearmonth(month))
+exim_bd
+```
+
+```{r}
+exim_bd_ts <- tsibble(exim_bd,index = month)
+exim_bd_ts
+```
+
+```{r}
+exim_bd_fis <- exim_bd_ts |> 
+  mutate(cal_year=year(month),
+         mon_num=month(month),
+         fis_year=ifelse(mon_num >7,cal_year+1,cal_year)
+         )
+glimpse(exim_bd_fis)
+```
+
+
+```{r}
+exim_bd_sum <- exim_bd_fis |> 
+  index_by(fis_year) |> 
+  summarise(exp_index_mean=mean(ex_index,na.rm=T),
+            imp_index_mean=mean(imp_index,na.rm=T),
+            exp_total=sum(export,na.rm=T),
+            imp_total=sum(import,na.rm=T)
+            )
+glimpse(exim_bd_sum)
+```
+
+
+```{r}
+exim_bd_sum
+```
+
+# Sheet 3: Other indicators
+
+```{r}
+var_names <- c("month","elec_sales","elec_gen","quantum_manu","dom_credit",
+                         "revenue_grants","revenue_tax")
+other_ind <- read_sheet(ss=sheet_path, sheet = "Dom Par",skip = 28) |> 
+    select(1:7) |> 
+  set_names(var_names) |> 
+  mutate(month=yearmonth(month)) |> 
+    drop_na(month) |> 
+    filter(!if_all(-month, is.na))
+    #janitor::remove_empty()
+           
+glimpse(other_ind)
+```
+
+```{r}
+skimr::skim(other_ind)
+```
+
+
+
+```{r}
+other_ind_ts <- tsibble(other_ind,index = month)
+other_ind_ts
+```
+
+```{r}
+other_ind_fis <- other_ind_ts |> 
+  mutate(cal_year=year(month),
+         mon_num=month(month),
+         fis_year=ifelse(mon_num >7,cal_year+1,cal_year)
+         #fis_year=as.character(fis_year)
+         )
+glimpse(other_ind_fis)
+```
+
+```{r}
+other_ind_fis2 <- other_ind_fis |> 
+                         select(-c(mon_num,cal_year)) |> 
+                         relocate(fis_year)
+glimpse(other_ind_fis2)
+```
+
+
+
+
+```{r}
+other_ind_sum <- other_ind_fis2 |> 
+  index_by(fis_year) |> 
+  summarize(across(c(elec_sales,elec_gen,quantum_manu,dom_credit,revenue_grants,revenue_tax), 
+                   ~mean(.x,na.rm=T) ))
+glimpse(other_ind_sum)
+```
+
+
+```{r}
+other_ind_sum
+```
+
+
+# Merging
+
+```{r}
+gdp_est_whole <- gdp_ts |> 
+  inner_join(exim_bd_sum,by=c("year"="fis_year")) |> 
+  inner_join(other_ind_sum,by=c("year"="fis_year"))
+glimpse(gdp_est_whole)
+```
+
+## Remove year 25
+
+```{r}
+gdp_est_whole <-  gdp_est_whole |> 
+                       mutate(exp_real=round(exp_total/exp_index_mean,1)) |> 
+                       rename(exp_usd=exp_total) |> 
+                       filter(!year == 2025) |> 
+                       select(year,exp_real,exp_usd,
+                              elec_gen,dom_credit,
+                              revenue_tax,gdp)
+```
+
+## Growth variables
+
+```{r}
+gdp_est_gr <- gdp_est_whole |> 
+                   arrange(year) |> 
+  mutate(
+    across(
+      c(gdp, exp_real,exp_usd,dom_credit,elec_gen,revenue_tax),
+      ~ 100 * (log(.) - log(lag(.))),
+      .names = "{.col}_gr"),
+    period = case_when(
+    year >= 2004 & year <= 2015 ~ "2004-2015",
+    year >= 2016 & year <= 2025 ~ "2016-2024",
+    .default =  NA_character_)
+  ) |> 
+  arrange(year)
+```
+
+
+```{r}
+save(gdp_est_gr, file = "./Data/gdp_est_gr.rda")
+```
+
+
+
+## Convert to long 
+
+```{r}
+gdp_est_long <- gdp_est_whole |> 
+  pivot_longer(cols=-year,names_to = "indicators") |> 
+  arrange(indicators,year)
+glimpse(gdp_est_long)
+```
+
+## Calculate CGAR
+
+```{r}
+cagr_data <- gdp_est_long |> 
+              as_tibble() |> 
+  mutate(period = case_when(
+    year >= 2004 & year <= 2015 ~ "2004-2015",
+    year >= 2016 & year <= 2025 ~ "2016-2024",
+    .default =  NA_character_
+  )) %>%
+  group_by(indicators, period) %>%
+  arrange(year) %>%
+  # Calculate CAGR: (End Value / Start Value)^(1 / Years) - 1
+  summarise(
+    start_val = first(value),
+    end_val = last(value),
+    n_years = n() - 1,
+    cagr = ((end_val / start_val)^(1 / n_years) - 1) * 100,
+    .groups = "drop"
+  )
+glimpse(cagr_data)
+```
+
+```{r}
+cagr_data
+```
+
+
+
+```{r}
+
+gdp_est_cagr <- cagr_data |>
+                    group_by(indicators) |> 
+                    filter(all(is.finite(cagr)))
+
+reorder_ind_names <- c("exp_real","exp_usd",
+                       "dom_credit", "elec_gen",
+                        "revenue_tax","gdp")
+
+# Convert Indicator to a factor to control the order on the x-axis
+# We put GDP last so it matches the image
+
+gdp_est_cagr$indicators <- factor(gdp_est_cagr$indicators, 
+                              levels = reorder_ind_names)
+
+#gdp_est_cagr <- gdp_est_cagr |> 
+ #                   mutate(indicators=fct_relevel(indicators,reorder_ind_names))
+
+```
+
+
+```{r}
+save(gdp_est_cagr,file = "./Data/gdp_est_cagr.rda")
+```
+

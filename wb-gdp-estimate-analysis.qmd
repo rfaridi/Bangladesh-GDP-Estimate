@@ -1,0 +1,255 @@
+---
+title: "GDP estimation of Bangladesh"
+format: html
+# format: 
+#     docx:
+#       number-sections: true
+#       reference-doc: docx-template-article.docx
+execute: 
+  echo: false
+  warning: false
+  cache: false
+  message: false
+# author:
+#   - name: Rushad Faridi,PhD
+#     email: rushad@du.ac.bd
+#     affiliations: 
+#       - name: University of Dhaka
+#         City: Dhaka
+#         Country: Bangladesh
+#         url: www.du.ac.bd
+# bibliography: reference-oaxaca-blinder.bib
+# bibliographystyle: "apa"
+# abstract: "Despite global"
+# keywords: 
+#   - Educational expenditure 
+#   - Gender gap
+#   - Intra-household allocation
+#   - Oaxaca-Blinder decomposition 
+#   - Bangladesh
+---
+
+
+<!-- loading libraries -->
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+<!-- load data -->
+
+```{r, include=FALSE}
+panel_gdp <- haven::read_dta("./wp26-3/Figure 5 and annex 4/panel 1995 onwards.dta") |> 
+   select(-india) |> 
+    mutate(bangladesh=ifelse(country_name=="Bangladesh",1,0)) 
+glimpse(panel_gdp)
+```
+
+
+<!-- have a look at the data  -->
+
+```{r,include=FALSE}
+glimpse(panel_gdp)
+```
+
+<!-- getting bangladesh specific data ready -->
+
+```{r,include=FALSE}
+bgd_panel <- panel_gdp |> 
+  filter(country_name=="Bangladesh")  |> 
+  relocate(year)
+glimpse(bgd_panel)
+```
+
+<!-- load the functions -->
+
+```{r}
+source("./fn_gdp_reg.R")
+source("./fn_scatter_periods.R")
+```
+
+
+
+
+# Introduction
+
+
+# Conceptual Framework
+
+
+# Methods and Data
+
+
+# Results
+
+<!-- getting the data ready -->
+
+
+## Comparison of growth rates
+
+```{r,include=FALSE}
+name_gr_vars <- c("Govt.\nExp.", "Real\n Tax Rev.",
+                  "Electricity\n Cons.","Energy\n Cons.",
+                  "Real\n Dom. Credit",
+                  "Export\n vol","Import\n vol","GCF","Real GDP")
+my_gr_vars <- c( "govt_exp_growth", "real_tax_growth",   
+                "elec_consumption_growth", 
+              "energy_consumption_growth", "real_credit_growth", 
+              "export_vol_growth", 
+              "import_vol_growth", "gcf_growth","gdp_growth")
+
+bgd_panel_long <- bgd_panel |>
+                    select(year,all_of(my_gr_vars)) |>  
+                    pivot_longer(cols=-year,names_to = "indicators") |>
+                    mutate(indicators=factor(indicators,levels = my_gr_vars)) |> 
+                    arrange(indicators,year)
+glimpse(bgd_panel_long)
+```
+
+<!-- Calculate average growth -->
+
+```{r,include=FALSE}
+bgd_panel_gr <- bgd_panel_long |> 
+              as_tibble() |> 
+  mutate(period = case_when(
+    year >= 1980 & year <= 2000 ~ "1980-2000",
+    year >= 2001 & year <= 2015 ~ "2001-2015",
+    year >= 2016 & year <= 2024 ~ "2016-2024",
+    .default =  NA_character_
+  )) %>%
+  group_by(indicators, period) %>%
+  arrange(year) %>%
+  summarise(
+     mean_gr=mean(value,na.rm=T),
+    .groups = "drop"
+  )
+glimpse(bgd_panel_gr)
+```
+
+<!-- set ggplot theme -->
+
+```{r}
+mytheme <- theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    legend.text = element_text(size = 10),
+    plot.title = element_text(face = "bold", color = "#2B6082", size = 12),
+    plot.subtitle = element_text(color = "grey50", size = 12, margin = margin(b = 15)),
+    axis.text.x = element_text(size = 11, color = "black"),
+    axis.text.y = element_text(size = 11),
+    panel.grid.major.x = element_blank(), # Remove vertical grid lines
+    panel.grid.minor = element_blank()) 
+```
+
+<!-- actual bar diagram -->
+
+```{r}
+#| fig-cap-location: top
+#| fig-cap: "Comparison of growth rates of different macro variables"
+
+ggplot(bgd_panel_gr, 
+        aes(x = indicators, y = mean_gr, fill = period)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(aes(label = sprintf("%.1f", mean_gr)),
+            position = position_dodge(width = 0.8),
+            vjust = -0.5,
+            size = 3, 
+            #fontface = "bold", 
+            color = "black") +
+  scale_fill_manual(values = c(
+            "1980-2000" = "#E0E8F0", # Pale Blue-Grey
+            "2001-2015" = "#B0C4DE", # Light Steel Blue
+            "2016-2024" = "#31708F")) +
+  scale_x_discrete(labels=name_gr_vars) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    # title = "Growth rate of macro indicators",
+    # subtitle = "Annual average growth (percent)",
+    x = NULL, 
+    y = NULL
+  ) +
+  theme_minimal() + mytheme
+```
+
+
+
+
+## GDP growth and other macroeconomic variables
+
+### Comparison since 1980
+
+```{r}
+#| fig-width: 8
+#| fig-height: 11
+#| out-width: "85%"
+#| fig-align: "center"
+#| fig-cap-location: top
+#| fig-cap: "Scatter plots between GDP growth and macroeconomic variables"
+
+my_vars <- c("govt_exp_growth", "real_tax_growth", "elec_consumption_growth", 
+              "energy_consumption_growth", "real_credit_growth", "export_vol_growth", 
+              "import_vol_growth", "gcf_growth")
+# this function is sources from fn_scatter_periods.R
+plot_macro_periods(data = bgd_panel,x_vars = my_vars,
+                   periods=c("1980-1995","1996-2015","2016-2024"))
+```
+
+
+### Comparison since 2000
+
+```{r}
+#| fig-width: 8
+#| fig-height: 11
+#| out-width: "85%"
+#| fig-align: "center"
+#| fig-cap-location: top
+#| fig-cap: "Scatter plots between GDP growth and macroeconomic variables"
+
+# this function is sources from fn_scatter_periods.R
+plot_macro_periods(data = bgd_panel,x_vars = my_vars,
+                   periods=c("2000-2015","2016-2024"))
+```
+
+
+## Regression results
+
+
+<!-- drawing the plots -->
+
+```{r}
+#| fig-width: 8
+#| fig-height: 3
+#| out-width: "85%"
+#| fig-align: "center"
+#| fig-cap: "Actual vs. Predicted Real GDP Growth for Bangladesh"
+#| fig-cap-location: "top"
+
+# this function is sourced from fn_gdp_reg.R script file
+# <!-- identifying the control variables -->
+
+# x_vars_reg <- c("govt_exp_growth", "real_tax_growth", "elec_consumption_growth", 
+#               "energy_consumption_growth", "real_credit_growth", "export_vol_growth", 
+#               "import_vol_growth", "gcf_growth","bangladesh")
+
+x_vars_reg <- c("real_tax_growth",  
+              "energy_consumption_growth", "real_credit_growth", "export_vol_growth", 
+              "import_vol_growth", "bangladesh")
+
+plot_16_24 <- fn_regression_plot(data=panel_gdp, start_year=2016,end_year=NULL,show_y=F,x_vars_reg )
+plot_01_15 <- fn_regression_plot(data=panel_gdp, start_year=2001,end_year=2015,x_vars_reg )
+combined_plot <- ( plot_01_15 | plot_16_24 ) + 
+  plot_annotation(
+    caption = "Predicted Growth"
+  ) & 
+  theme(
+    plot.caption = element_text(hjust = 0.5, size = 11, margin = margin(t = 10))
+  )
+combined_plot
+```
+<div style="text-align: center; margin-top: -10px; margin-bottom: 20px;">
+  <small><em>Source: Authors' calculations based on data from CEIC, World Development Indicators (WDI), and Bangladesh Bureau of Statistics (BBS).</em></small>
+</div>
+
+
+
