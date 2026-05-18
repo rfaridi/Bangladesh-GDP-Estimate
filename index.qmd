@@ -1,0 +1,16 @@
+---
+title: "GDP estimate of Bangladesh"
+format: html
+---
+
+Welcome to the central hub for this project. Below you will find links to the various reports and regression analyses we have conducted.
+
+### Main Reports
+
+* [Analysis on GDP estimation](wb-gdp-estimate-analysis.html)
+
+
+### About This Project
+This repository utilizes data from CEIC, the World Development Indicators (WDI), and the Bangladesh Bureau of Statistics to model and visualize economic trends.
+
+*(Note: Click any of the links above to view the interactive Quarto reports.)*
