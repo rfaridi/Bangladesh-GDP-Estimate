@@ -218,21 +218,6 @@ plot_macro_periods(data = bgd_panel,x_vars = my_vars,
 ```
 
 
-### Comparison since 2000
-
-```{r}
-#| label: fig-scatter-2000
-#| fig-width: 8
-#| fig-height: 11
-#| out-width: "85%"
-#| fig-align: "center"
-#| fig-cap-location: top
-#| fig-cap: "Scatter plots between GDP growth and macroeconomic variables"
-
-# this function is sources from fn_scatter_periods.R
-plot_macro_periods(data = bgd_panel,x_vars = my_vars,
-                   periods=c("2000-2015","2016-2024"))
-```
 
 
 ## Regression results
@@ -265,8 +250,12 @@ x_vars_reg <- c("real_tax_growth",
               "import_vol_growth", "bangladesh")
 
 plot_16_24 <- fn_regression_plot(data=panel_gdp, start_year=2016,end_year=NULL,show_y=F,x_vars_reg )
+
 plot_01_15 <- fn_regression_plot(data=panel_gdp, start_year=2001,end_year=2015,x_vars_reg )
-combined_plot <- ( plot_01_15 | plot_16_24 ) + 
+
+plot_80_00 <- fn_regression_plot(data=panel_gdp, start_year=1980,end_year=2000,x_vars_reg )
+
+combined_plot <- (plot_80_00 | plot_01_15 | plot_16_24 ) + 
   plot_annotation(
     caption = "Predicted Growth"
   ) & 
