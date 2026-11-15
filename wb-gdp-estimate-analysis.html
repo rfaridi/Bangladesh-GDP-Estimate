@@ -38,6 +38,35 @@ ul.task-list li input[type="checkbox"] {
 <link href="wb-gdp-estimate-analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="wb-gdp-estimate-analysis_files/libs/bootstrap/bootstrap-726e8554f20b7d821de2e02f9d9d21ef.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -139,14 +168,12 @@ Figure&nbsp;1: Comparison of growth rates of different macro variables
 </section>
 <section id="gdp-growth-and-other-macroeconomic-variables" class="level2">
 <h2 class="anchored" data-anchor-id="gdp-growth-and-other-macroeconomic-variables">GDP growth and other macroeconomic variables</h2>
-<section id="comparison-since-1980" class="level3">
-<h3 class="anchored" data-anchor-id="comparison-since-1980">Comparison since 1980</h3>
-<p><a href="#fig-scatter-all" class="quarto-xref">Figure&nbsp;2</a> presents a matrix of scatter plots detailing the bivariate relationships between real GDP growth—plotted continuously on the y-axis—and eight macroeconomic indicators across three distinct temporal regimes: 1980-1995, 1996-2015, and 2016-2024. Through linear fit lines and the spatial distribution of data clusters, these panels map the shifting macroeconomic elasticities of aggregate output relative to energy consumption, external trade, financial deepening, investment, and fiscal variables.</p>
-<p>A rigorous examination of these spatial distributions reveals a systemic structural break in the growth elasticities during the 2016-2024 epoch. In the historical regimes, particularly from 1996 to 2015, robust real GDP growth was generally predicated upon commensurate expansions in physical and financial proxies; the data points for these periods are distributed broadly across the x-axis, demonstrating standard covariation. Conversely, the 2016-2024 observations universally exhibit a pronounced upward and leftward translation in coordinate space. This distinct clustering indicates that historically high levels of reported GDP growth (the upward shift on the y-axis) are materializing simultaneously with compressed growth in the underlying indicators (the leftward shift on the x-axis). The aggressive steepening of the linear trend lines in this latest period further highlights the anomaly, mathematically implying an implausible macroeconomic elasticity where marginal, stagnant, or even negative growth in hard fundamentals—such as export volumes, real bank credit, and energy consumption—coincides with peak economic expansion.</p>
+<p><a href="#fig-scatter-all" class="quarto-xref">Figure&nbsp;2</a> presents a matrix of scatter plots detailing the bivariate relationships between real GDP growth—plotted continuously on the y-axis—and eight macroeconomic indicators across three distinct temporal regimes: 1990-2000, 2001-2015, and 2016-2024. Through linear fit lines and the spatial distribution of data clusters, these panels map the shifting macroeconomic elasticities of aggregate output relative to energy consumption, external trade, financial deepening, investment, and fiscal variables.</p>
+<p>A rigorous examination of these spatial distributions reveals a systemic structural break in the growth elasticities during the 2016-2024 epoch. In the historical regimes, particularly from 2001 to 2015, robust real GDP growth was generally predicated upon commensurate expansions in physical and financial proxies; the data points for these periods are distributed broadly across the x-axis, demonstrating standard covariation. Conversely, the 2016-2024 observations universally exhibit a pronounced upward and leftward translation in coordinate space. This distinct clustering indicates that historically high levels of reported GDP growth (the upward shift on the y-axis) are materializing simultaneously with compressed growth in the underlying indicators (the leftward shift on the x-axis). The aggressive steepening of the linear trend lines in this latest period further highlights the anomaly, mathematically implying an implausible macroeconomic elasticity where marginal, stagnant, or even negative growth in hard fundamentals—such as export volumes, real bank credit, and energy consumption—coincides with peak economic expansion.</p>
 <p>This bivariate analysis provides the mechanistic statistical foundation for the divergence paradox identified in the previously analyzed bar chart. While the bar diagram illustrated the absolute decoupling of period averages—highlighting accelerating GDP amidst decelerating macroeconomic fundamentals—the scatter plots expose the total breakdown of the historical covariance structure itself. The persistent leftward-and-upward migration of the 2016-2024 data clusters visually confirms that the official GDP metric has unmoored from its traditional macroeconomic determinants. Historically, as the 1996-2015 data illustrates, achieving a 6% GDP expansion frequently required 10% to 20% growth in exports or domestic credit. The contemporary data implies the economy now achieves and exceeds this output with near-zero or vastly diminished growth in those exact same inputs. This statistical decoupling strongly corroborates the prior diagnostic hypothesis: the recent acceleration in official aggregate output cannot be empirically reconciled with the underlying real economy dynamics, thereby amplifying academic concerns regarding systemic statistical overestimation rather than a genuine, productivity-driven structural transformation.</p>
 <div class="cell fig-cap-location-top" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-scatter-all" class="quarto-float quarto-figure quarto-figure-center anchored" data-cap-location="top" data-fig-align="center">
+<div id="fig-scatter-all" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-cap-location="top">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-scatter-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Scatter plots between GDP growth and macroeconomic variables
@@ -159,15 +186,204 @@ Figure&nbsp;2: Scatter plots between GDP growth and macroeconomic variables
 </div>
 </div>
 </section>
-</section>
 <section id="regression-results" class="level2">
 <h2 class="anchored" data-anchor-id="regression-results">Regression results</h2>
+<section id="regression-table" class="level3">
+<h3 class="anchored" data-anchor-id="regression-table">Regression table</h3>
+</section>
+<section id="econometric-interpretation-of-baseline-regression-results" class="level3">
+<h3 class="anchored" data-anchor-id="econometric-interpretation-of-baseline-regression-results">Econometric Interpretation of Baseline Regression Results</h3>
+<p>The estimation results for the predictive OLS models trained on the benchmark period (2001–2015) are presented in the model comparison table. To guard against circularity and ensure that Bangladesh’s historical series do not bias the predictive parameters, we estimate two specifications:</p>
+<ol type="1">
+<li><strong>Benchmark Model (Column 1):</strong> The cross-country panel excluding Bangladesh (<span class="math inline">\(N = 686\)</span>).</li>
+<li><strong>Full Panel Model (Column 2):</strong> The full cross-country sample including Bangladesh (<span class="math inline">\(N = 700\)</span>).</li>
+</ol>
+<section id="overall-model-fit-and-explanatory-power" class="level4">
+<h4 class="anchored" data-anchor-id="overall-model-fit-and-explanatory-power">Overall Model Fit and Explanatory Power</h4>
+<p>Both specifications demonstrate high explanatory power for cross-country growth regressions. The Benchmark Model yields an <span class="math inline">\(R^2\)</span> of <span class="math inline">\(0.601\)</span> (Adjusted <span class="math inline">\(R^2 = 0.598\)</span>), indicating that approximately <span class="math inline">\(60\%\)</span> of the cross-country variation in real GDP growth during the 2001–2015 epoch is accounted for by these five real-sector, trade, and financial proxies. The Root Mean Squared Error (RMSE) remains tight at <span class="math inline">\(2.31\)</span> percentage points. This strong goodness-of-fit confirms that physical, fiscal, and financial proxies form a stable empirical anchor for aggregate output in developing and emerging market economies.</p>
+<div class="cell">
+<div id="tbl-reg-output" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-reg-output-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Cross-Country Panel OLS Regressions for Real GDP Growth Prediction
+</figcaption>
+<div aria-describedby="tbl-reg-output-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_637eqy4s760op1cuwrfy = TinyTable.createTableFunctions("tinytable_637eqy4s760op1cuwrfy");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '16', j: 2 }, { i: '16', j: 3 } ], css_id: 'tinytable_css_8keg074reeohpnt0ckij',}, 
+          { positions: [ { i: '12', j: 2 }, { i: '12', j: 3 } ], css_id: 'tinytable_css_54mya5i8x7f3rebmf9sd',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 } ], css_id: 'tinytable_css_99w9lxkumk9ahtnupxhj',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_9uikq50z8pqueycstnje',}, 
+          { positions: [ { i: '16', j: 1 } ], css_id: 'tinytable_css_5rqu6mbm5pdvynxes98f',}, 
+          { positions: [ { i: '12', j: 1 } ], css_id: 'tinytable_css_8ya1ge9vdeuj6mmckfj3',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 } ], css_id: 'tinytable_css_52g6p7z1cb1zugvank8k',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_jhq72gyno0z0p50mbzfo',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_637eqy4s760op1cuwrfy.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_8keg074reeohpnt0ckij, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_8keg074reeohpnt0ckij {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_54mya5i8x7f3rebmf9sd, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_54mya5i8x7f3rebmf9sd {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_99w9lxkumk9ahtnupxhj, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_99w9lxkumk9ahtnupxhj { text-align: center }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_9uikq50z8pqueycstnje, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_9uikq50z8pqueycstnje {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_5rqu6mbm5pdvynxes98f, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_5rqu6mbm5pdvynxes98f {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_8ya1ge9vdeuj6mmckfj3, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_8ya1ge9vdeuj6mmckfj3 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_52g6p7z1cb1zugvank8k, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_52g6p7z1cb1zugvank8k { text-align: left }
+    #tinytable_637eqy4s760op1cuwrfy td.tinytable_css_jhq72gyno0z0p50mbzfo, #tinytable_637eqy4s760op1cuwrfy th.tinytable_css_jhq72gyno0z0p50mbzfo {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_637eqy4s760op1cuwrfy" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">Benchmark Model (2001–2015)</th>
+                <th scope="col" data-row="0" data-col="3">Full Panel Model (2001–2015)</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="3">+ p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">(Intercept)</td>
+                  <td data-row="1" data-col="2">1.330***</td>
+                  <td data-row="1" data-col="3">1.343***</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.108)</td>
+                  <td data-row="2" data-col="3">(0.107)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Real Tax Revenue Growth</td>
+                  <td data-row="3" data-col="2">0.094***</td>
+                  <td data-row="3" data-col="3">0.095***</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.013)</td>
+                  <td data-row="4" data-col="3">(0.013)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Energy Consumption Growth</td>
+                  <td data-row="5" data-col="2">0.218***</td>
+                  <td data-row="5" data-col="3">0.217***</td>
+                </tr>
+                <tr>
+                  <td data-row="6" data-col="1"></td>
+                  <td data-row="6" data-col="2">(0.019)</td>
+                  <td data-row="6" data-col="3">(0.019)</td>
+                </tr>
+                <tr>
+                  <td data-row="7" data-col="1">Real Domestic Credit Growth</td>
+                  <td data-row="7" data-col="2">0.042***</td>
+                  <td data-row="7" data-col="3">0.043***</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2">(0.007)</td>
+                  <td data-row="8" data-col="3">(0.007)</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1">Export Volume Growth</td>
+                  <td data-row="9" data-col="2">0.075***</td>
+                  <td data-row="9" data-col="3">0.076***</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1"></td>
+                  <td data-row="10" data-col="2">(0.015)</td>
+                  <td data-row="10" data-col="3">(0.015)</td>
+                </tr>
+                <tr>
+                  <td data-row="11" data-col="1">Import Volume Growth</td>
+                  <td data-row="11" data-col="2">0.098***</td>
+                  <td data-row="11" data-col="3">0.094***</td>
+                </tr>
+                <tr>
+                  <td data-row="12" data-col="1"></td>
+                  <td data-row="12" data-col="2">(0.014)</td>
+                  <td data-row="12" data-col="3">(0.014)</td>
+                </tr>
+                <tr>
+                  <td data-row="13" data-col="1">Num.Obs.</td>
+                  <td data-row="13" data-col="2">686</td>
+                  <td data-row="13" data-col="3">700</td>
+                </tr>
+                <tr>
+                  <td data-row="14" data-col="1">R2</td>
+                  <td data-row="14" data-col="2">0.601</td>
+                  <td data-row="14" data-col="3">0.602</td>
+                </tr>
+                <tr>
+                  <td data-row="15" data-col="1">R2 Adj.</td>
+                  <td data-row="15" data-col="2">0.598</td>
+                  <td data-row="15" data-col="3">0.599</td>
+                </tr>
+                <tr>
+                  <td data-row="16" data-col="1">RMSE</td>
+                  <td data-row="16" data-col="2">2.31</td>
+                  <td data-row="16" data-col="3">2.30</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="parameter-stability-and-robustness-across-specifications" class="level4">
+<h4 class="anchored" data-anchor-id="parameter-stability-and-robustness-across-specifications">Parameter Stability and Robustness Across Specifications</h4>
+<p>A comparison between the Benchmark Model and the Full Panel Model reveals parameter stability. The point estimates and standard errors across all five covariates are virtually identical between the two columns:</p>
+<ul>
+<li>The intercept shifts only marginally from <span class="math inline">\(1.330\)</span> (<span class="math inline">\(p &lt; 0.001\)</span>) to <span class="math inline">\(1.343\)</span> (<span class="math inline">\(p &lt; 0.001\)</span>).</li>
+<li>The <span class="math inline">\(R^2\)</span> changes by only <span class="math inline">\(0.001\)</span> (rising from <span class="math inline">\(0.601\)</span> to <span class="math inline">\(0.602\)</span>).</li>
+</ul>
+<p>This coefficient stability demonstrates that Bangladesh’s macroeconomic data during the 2001–2015 benchmark era conformed tightly to international growth elasticities. Including Bangladesh in the estimation sample introduces no structural leverage or parameter distortion, confirming that the Benchmark Model provides an uncompromised, neutral baseline for generating out-of-sample predictions during the subsequent 2016–2024 period.</p>
+</section>
+<section id="individual-variable-elasticities-and-economic-significance" class="level4">
+<h4 class="anchored" data-anchor-id="individual-variable-elasticities-and-economic-significance">Individual Variable Elasticities and Economic Significance</h4>
+<p>All five explanatory variables are statistically significant at the <span class="math inline">\(0.1\%\)</span> level (<span class="math inline">\(p &lt; 0.001\)</span>) with positive point estimates, aligning with economic theory:</p>
+<ol type="1">
+<li><strong>Energy Consumption Growth (<span class="math inline">\(\hat{\beta} = 0.218\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>):</strong> Energy consumption serves as the single strongest physical determinant of real GDP growth in the benchmark model. Holding all other factors constant, a <span class="math inline">\(1\text{ percentage point}\)</span> acceleration in energy consumption growth is associated with a <span class="math inline">\(0.218\text{ percentage point}\)</span> increase in real GDP growth. This large coefficient emphasizes that industrial production, commercial activity, and transport in developing economies cannot expand without a commensurate increase in physical energy inputs.</li>
+<li><strong>Import Volume Growth (<span class="math inline">\(\hat{\beta} = 0.098\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>):</strong> Import volumes exhibit the second-largest magnitude among trade and financial indicators. A <span class="math inline">\(1\text{ percentage point}\)</span> increase in import volume growth increases predicted real GDP growth by <span class="math inline">\(0.098\text{ percentage points}\)</span>. In developing economies, imports heavily comprise intermediate industrial goods, capital machinery, and raw materials; thus, import contractions directly reflect domestic demand compression and industrial deceleration.</li>
+<li><strong>Real Tax Revenue Growth (<span class="math inline">\(\hat{\beta} = 0.094\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>):</strong> A <span class="math inline">\(1\text{ percentage point}\)</span> increase in real tax growth corresponds to a <span class="math inline">\(0.094\text{ percentage point}\)</span> rise in aggregate output. This reflects the reality that broad-based economic expansion expands the transaction tax base (such as VAT and import duties), making tax growth a sensitive indicator of underlying economic velocity.</li>
+<li><strong>Export Volume Growth (<span class="math inline">\(\hat{\beta} = 0.075\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>):</strong> Export volume growth yields a highly significant positive elasticity (<span class="math inline">\(\hat{\beta} = 0.075\)</span>). A <span class="math inline">\(10\text{ percentage point}\)</span> surge in export volume growth contributes <span class="math inline">\(0.75\text{ percentage points}\)</span> directly to real GDP growth, capturing external demand dynamics and industrial manufacturing strength.</li>
+<li><strong>Real Domestic Credit Growth (<span class="math inline">\(\hat{\beta} = 0.042\)</span>, <span class="math inline">\(p &lt; 0.001\)</span>):</strong> Real domestic credit to the private sector has a statistically significant positive effect (<span class="math inline">\(\hat{\beta} = 0.042\)</span>). A <span class="math inline">\(1\text{ percentage point}\)</span> expansion in private sector credit growth adds <span class="math inline">\(0.042\text{ percentage points}\)</span> to output growth, capturing financial deepening and private investment execution.</li>
+</ol>
+</section>
+<section id="methodological-implication-for-the-misestimation-wedge" class="level4">
+<h4 class="anchored" data-anchor-id="methodological-implication-for-the-misestimation-wedge">Methodological Implication for the Misestimation Wedge</h4>
+<p>Because the Benchmark Model (<span class="math inline">\(N = 686\)</span>, <span class="math inline">\(R^2 = 0.601\)</span>) is statistically robust, highly predictive, and uncontaminated by Bangladesh’s post-2015 national accounts data, it provides the precise empirical baseline required for out-of-sample counterfactual forecasting. Applying the estimated vector of coefficients <span class="math inline">\(\hat{\boldsymbol{\beta}} = [0.094, 0.218, 0.042, 0.075, 0.098]'\)</span> to Bangladesh’s actual reported covariate data during 2016–2024 will yield the predicted growth trajectory (<span class="math inline">\(\hat{y}_{\text{BGD}, t}\)</span>) that <em>should</em> have materialized if Bangladesh had maintained its historical macroeconomic relationships. The difference between official reported GDP and this econometric prediction defines the empirical misestimation wedge.</p>
+</section>
+</section>
+<section id="regression-plot" class="level3">
+<h3 class="anchored" data-anchor-id="regression-plot">Regression plot</h3>
 <p>Building upon the bivariate breakdown illustrated in the preceding scatter plots, the <a href="#fig-reg-pred" class="quarto-xref">Figure&nbsp;3</a> presents a formalized econometric synthesis by plotting actual versus predicted real GDP growth for Bangladesh across two temporal regimes: 2001-2015 and 2016-2024. The visualization features a regression line with an accompanying confidence interval, mapping the expected trajectory of aggregate output based on a predictive model—presumably a function of the underlying macroeconomic fundamentals analyzed in the previous sections. A rigorous examination of this figure provides definitive statistical quantification of the divergence paradox. During the 2001-2015 period, the observation for Bangladesh lies in close proximity to the regression line and firmly near the predictive confidence bounds. In this era, the actual reported real GDP growth (approximately 6%) is highly consistent with the predicted growth, indicating that the official aggregate output figures were statistically grounded in and accurately reflected the contemporary macroeconomic realities of trade, investment, and energy consumption.</p>
 <p>In stark contrast, the 2016-2024 panel exposes a profound structural break and a massive prediction error. While the predicted growth for Bangladesh contracts significantly—shifting leftward on the x-axis to approximately 5%—the actual reported growth accelerates, shifting upward on the y-axis. Consequently, the Bangladesh data point completely detaches from the established regression trend, manifesting as a large positive residual residing far outside the statistical confidence interval. This visualization serves as the macroeconomic capstone to the preceding bar and scatter charts. Because the hard proxies for economic activity (such as export volumes, domestic credit, and electricity consumption) collapsed during the 2016-2024 epoch, any rigorous econometric model will naturally predict a corresponding deceleration in aggregate output. The glaring reality that official GDP figures defied this downward prediction mathematically formalizes the anomaly. Ultimately, this predictive dislocation confirms that the recent acceleration in official GDP cannot be empirically justified by the nation’s underlying macroeconomic covariates, providing compelling econometric evidence that the reported growth figures during the 2016-2024 period are systematically unmoored from the real economy.</p>
 <!-- drawing the plots -->
 <div class="cell fig-cap-location-top" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-reg-pred" class="quarto-float quarto-figure quarto-figure-center anchored" data-cap-location="top" data-fig-align="center">
+<div id="fig-reg-pred" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-cap-location="top">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-reg-pred-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Actual vs.&nbsp;Predicted Real GDP Growth for Bangladesh
@@ -182,6 +398,7 @@ Figure&nbsp;3: Actual vs.&nbsp;Predicted Real GDP Growth for Bangladesh
 <div style="text-align: center; margin-top: -10px; margin-bottom: 20px;">
 <p><small><em>Source: Authors’ calculations based on data from CEIC, World Development Indicators (WDI), and Bangladesh Bureau of Statistics (BBS).</em></small></p>
 </div>
+</section>
 </section>
 </section>
 

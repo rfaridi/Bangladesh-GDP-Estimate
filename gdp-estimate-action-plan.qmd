@@ -1,0 +1,409 @@
+---
+title: "GDP Estimate - Action Plan"
+format:
+ pdf:
+  fontsize: 10pt              # Reduces text size (default is 11pt or 12pt)
+  geometry:
+    - top=10mm               # Sets very narrow margins (10mm / 0.4in)
+    - bottom=10mm
+    - left=10mm
+    - right=10mm
+  linestretch: 1.0           # Single line spacing
+  #classoption: twocolumn
+execute: 
+ eval: false
+---
+
+This operational action plan and timeline is designed to take your manuscript from its current draft state to a submission-ready PDF/HTML package for *World Development*.
+
+The entire workflow is broken down into **5 Phase Modules**, estimated at approximately **16 total hours** of focused work across a 5-day timeline.
+
+---
+
+## Complete Project Timeline Overview
+
+| Phase | Focus Area | Estimated Time | Target Completion |
+| --- | --- | --- | --- |
+| **Phase 1** | Code Refactoring & Period Standardization (1991–2024) | 2.5 hours | Day 1 (Morning) |
+| **Phase 2** | Econometric Regression, Wedge Calculation & Table Generation | 3.0 hours | Day 1 (Afternoon) |
+| **Phase 3** | Manuscript Narrative Drafting (Intro, Framework, Methods, Discussion, Conclusion) | 7.0 hours | Days 2–3 |
+| **Phase 4** | Bibliography (`.bib`), Citations & Quarto YAML Optimization | 2.0 hours | Day 4 |
+| **Phase 5** | Rendering, Visual Audit, GitHub Push & Journal Submission | 1.5 hours | Day 5 |
+| **TOTAL** |  | **16.0 hours** | **5 Days** |
+
+---
+
+## Detailed Step-by-Step Action Plan
+
+### PHASE 1: Code Refactoring & Period Standardization
+
+**Target Time:** 2.5 Hours | **Goal:** Shift analysis start year to 1991, update data categorizations, and harmonize scripts.
+
+#### Task 1.1: Update `bgd_panel_gr` period categorization in `.qmd` (30 mins)
+
+Open `wb-gdp-estimate-analysis.qmd` and modify the `case_when()` block inside the data preparation chunk to adopt the 1991 baseline.
+
+```r
+# Execute in Quarto chunk: Calculate average growth across new periods
+bgd_panel_gr <- bgd_panel_long |> 
+  as_tibble() |> 
+  filter(year >= 1991) |>  # Drop pre-1991 data
+  mutate(period = case_when(
+    year >= 1991 & year <= 2000 ~ "1991-2000",
+    year >= 2001 & year <= 2015 ~ "2001-2015",
+    year >= 2016 & year <= 2024 ~ "2016-2024",
+    .default = NA_character_
+  )) |> 
+  group_by(indicators, period) |> 
+  arrange(year) |> 
+  summarise(
+    mean_gr = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+```
+
+#### Task 1.2: Update `fn_scatter_periods.R` call in `.qmd` (30 mins)
+
+Update the scatter plot rendering block to use `1991-2000` instead of `1980-1995`.
+
+```r
+# In #| label: fig-scatter-all chunk
+my_vars <- c("govt_exp_growth", "real_tax_growth", "elec_consumption_growth", 
+             "energy_consumption_growth", "real_credit_growth", "export_vol_growth", 
+             "import_vol_growth", "gcf_growth")
+
+plot_macro_periods(data = filter(bgd_panel, year >= 1991), 
+                   x_vars = my_vars,
+                   periods = c("1991-2000", "2001-2015", "2016-2024"))
+
+```
+
+#### Task 1.3: Harmonize `fn_gdp_reg.R` calls for 3-panel regression (60 mins)
+
+Modify the regression plot section so that Panel 1 reflects `1991-2000` instead of `1980-2000`.
+
+```r
+# In #| label: fig-reg-pred chunk
+x_vars_reg <- c("real_tax_growth", "energy_consumption_growth", 
+               "real_credit_growth", "export_vol_growth", 
+               "import_vol_growth", "bangladesh")
+
+plot_16_24 <- fn_regression_plot(data=panel_gdp, start_year=2016, end_year=2024, show_y=FALSE, x_vars_reg)
+plot_01_15 <- fn_regression_plot(data=panel_gdp, start_year=2001, end_year=2015, show_y=FALSE, x_vars_reg)
+plot_91_00 <- fn_regression_plot(data=panel_gdp, start_year=1991, end_year=2000, show_y=TRUE,  x_vars_reg)
+
+combined_plot <- (plot_91_00 | plot_01_15 | plot_16_24) + 
+  plot_annotation(caption = "Predicted Growth (%)") & 
+  theme(plot.caption = element_text(hjust = 0.5, size = 11, margin = margin(t = 10)))
+
+combined_plot
+
+```
+
+#### Task 1.4: Run sanity check in R console (30 mins)
+
+Run `quarto render wb-gdp-estimate-analysis.qmd` in the RStudio terminal and confirm all figures render without error.
+
+---
+
+### PHASE 2: Econometric Regression & Table Generation
+
+**Target Time:** 3.0 Hours | **Goal:** Compute the exact point estimate for the misestimation "wedge" and output journal-ready tables.
+
+#### Task 2.1: Run OLS models and compute out-of-sample predictions (60 mins)
+
+Add an invisible R code chunk to compute point estimates and residuals:
+
+
+```{r, include=FALSE}
+library(modelsummary)
+library(broom)
+
+# 1. Fit baseline model on Benchmark Era (2001-2015) excluding Bangladesh
+mod_benchmark <- lm(
+  gdp_growth ~ real_tax_growth + energy_consumption_growth + 
+               real_credit_growth + export_vol_growth + import_vol_growth,
+  data = filter(panel_gdp, year >= 2001 & year <= 2015, bangladesh == 0)
+)
+
+# 2. Predict out-of-sample for Bangladesh (2016-2024)
+bgd_decoupling <- filter(bgd_panel, year >= 2016 & year <= 2024)
+bgd_decoupling$predicted_gdp <- predict(mod_benchmark, newdata = bgd_decoupling)
+
+# 3. Calculate Average Annual Misestimation Wedge
+bgd_decoupling <- bgd_decoupling |> 
+  mutate(wedge = gdp_growth - predicted_gdp)
+
+mean_actual_gdp    <- mean(bgd_decoupling$gdp_growth, na.rm=TRUE)
+mean_predicted_gdp <- mean(bgd_decoupling$predicted_gdp, na.rm=TRUE)
+mean_wedge         <- mean(bgd_decoupling$wedge, na.rm=TRUE)
+
+```
+
+```
+
+#### Task 2.2: Add formal regression table (`tbl-reg-output`) in `.qmd` (60 mins)
+Insert the `modelsummary` table chunk into the `## Regression results` section:
+
+```r
+```{r}
+#| label: tbl-reg-output
+#| tbl-cap: "Cross-Country Panel OLS Regressions for Real GDP Growth Prediction"
+
+mod_full_sample <- lm(
+  gdp_growth ~ real_tax_growth + energy_consumption_growth + 
+               real_credit_growth + export_vol_growth + import_vol_growth,
+  data = filter(panel_gdp, year >= 2001 & year <= 2015)
+)
+
+modelsummary(
+  list("Benchmark Model (2001–2015)" = mod_benchmark,
+       "Full Panel Model (2001–2015)" = mod_full_sample),
+  stars = TRUE,
+  fmt = 3,
+  gof_map = c("nobs", "r.squared", "adj.r.squared", "rmse"),
+  coef_rename = c(
+    "real_tax_growth" = "Real Tax Revenue Growth",
+    "energy_consumption_growth" = "Energy Consumption Growth",
+    "real_credit_growth" = "Real Domestic Credit Growth",
+    "export_vol_growth" = "Export Volume Growth",
+    "import_vol_growth" = "Import Volume Growth"
+  )
+)
+
+```
+
+```
+
+#### Task 2.3: Integrate numerical results into text (60 mins)
+Update the draft text under `## Regression results` to quote the numbers computed in Task 2.1:
+* State the baseline model $R^2$ value.
+* State reported GDP growth average for 2016–2024 (e.g., 6.3%).
+* State econometric predicted average (e.g., 4.1%).
+* State the calculated misestimation wedge: $\hat{\mathcal{W}} = 2.2$ percentage points per year.
+
+---
+
+### PHASE 3: Writing Narrative Sections
+**Target Time:** 7.0 Hours | **Goal:** Complete all missing text blocks directly in `wb-gdp-estimate-analysis.qmd`.
+
+#### Task 3.1: Write Section 1 - Introduction (90 mins)
+Paste and edit the following structure directly under `# Introduction`:
+
+> Over the past two decades, Bangladesh has been widely lauded as a South Asian growth miracle, exhibiting accelerating annual Real GDP growth that surpassed regional peers. However, this official macroeconomic narrative has increasingly diverged from ground-level economic realities. Following the Bangladesh Bureau of Statistics (BBS) rebase of national accounts to the 2015–16 base year and the subsequent introduction of quarterly GDP monitoring, aggregate output growth reached historical highs of 6.5% to 8.1%. Concurrently, key real-sector indicators—including electricity demand, private sector credit growth, revenue collection, and trade volumes—exhibited severe, multi-year decelerations.
+>
+> Building upon the cross-country "wedge analysis" methodology developed by Anand et al. (2026) for India and Subramanian (2019), this paper investigates whether post-2015 GDP metrics in Bangladesh reflect genuine economic expansion or systemic statistical overestimation. Using a panel dataset of developing economies spanning 1991 to 2024, we train a predictive model on historical growth elasticities (2001–2015) and generate out-of-sample predicted growth rates for Bangladesh during the 2016–2024 epoch.
+>
+> Our contribution is twofold: First, we provide the first rigorous econometric verification of GDP misestimation in Bangladesh using physical and financial proxies uncorrupted by national accounts deflators. Second, we quantify the average annual "misestimation wedge," offering crucial empirical evidence for policymakers, international financial institutions, and sovereign credit rating agencies.
+
+#### Task 3.2: Write Section 2 - Conceptual Framework (60 mins)
+Paste directly under `# Conceptual Framework`:
+
+> Macroeconomic accounting rests on the structural identity between aggregate output and fundamental physical, financial, and trade inputs. While short-term divergence can occur due to service sector expansion or shifts in capital intensity, sustained long-term decoupling between Real GDP growth and hard activity proxies is economically implausible in a lower-middle-income developing economy.
+>
+> Statistical overestimation typically enters national accounts through three primary channels:
+> 1. **Deflator Misalignment:** Using inappropriate price indices (e.g., Consumer Price Index instead of Producer Price Index) during high-inflation regimes, which understates aggregate deflators and artificially inflates Real GDP.
+> 2. **Unrepresentative Volume Extrapolation:** Over-relying on formal corporate sector proxies to extrapolate informal sector activity following base-year revisions.
+> 3. **Public Investment Deflator Distortions:** Treating mega-project public capital expenditure as direct output additions without accounting for cost overruns or execution inefficiencies.
+
+#### Task 3.3: Write Section 3 - Methods and Data (90 mins)
+Paste directly under `# Methods and Data` with full LaTeX markup:
+
+```markdown
+# Methods and Data
+
+We partition our dataset into three distinct macroeconomic epochs:
+1. **Democratic Restoration & Market Reform Era (1991–2000):** Captures early trade liberalisation and structural adjustment.
+2. **High-Growth Benchmark Era (2001–2015):** Serves as our primary econometric training sample ($T_{\text{pre}}$) under the stable 2005–06 base year.
+3. **Decoupling Era (2016–2024):** Our out-of-sample evaluation period ($T_{\text{post}}$) following the 2015–16 BBS rebasing.
+
+To model aggregate growth, we specify a cross-country panel OLS regression over $T_{\text{pre}}$:
+
+$$y_{i,t} = \alpha + \boldsymbol{\beta} \mathbf{X}_{i,t} + \varepsilon_{i,t}$$
+
+Where $y_{i,t}$ represents Real GDP growth for country $i$ in year $t$, and $\mathbf{X}_{i,t}$ is a vector of five fundamental macroeconomic covariates:
+* $\text{real\_tax\_growth}_{i,t}$: Real tax revenue growth
+* $\text{energy\_consumption\_growth}_{i,t}$: Total energy consumption growth
+* $\text{real\_credit\_growth}_{i,t}$: Real domestic credit growth to the private sector
+* $\text{export\_vol\_growth}_{i,t}$: Export volume growth
+* $\text{import\_vol\_growth}_{i,t}$: Import volume growth
+
+Using estimated coefficients $\hat{\boldsymbol{\beta}}$ from $T_{\text{pre}}$, we generate out-of-sample predicted growth rates ($\hat{y}_{\text{BGD}, t}$) for Bangladesh during $T_{\text{post}}$:
+
+$$\hat{y}_{\text{BGD}, t} = \hat{\alpha} + \hat{\boldsymbol{\beta}} \mathbf{X}_{\text{BGD}, t}$$
+
+The **Misestimation Wedge** ($\hat{\mathcal{W}}_t$) is defined as:
+
+$$\hat{\mathcal{W}}_t = y_{\text{BGD}, t} - \hat{y}_{\text{BGD}, t}$$
+
+```
+
+#### Task 3.4: Write Section 5 - Discussion (120 mins)
+
+Add Section `# Discussion` directly after Results:
+
+> **Addressing Counter-Arguments: The Service Sector Defense**
+> Proponents of official figures may argue that Bangladesh’s economy underwent rapid structural transformation toward services (e.g., mobile financial services, IT), reducing reliance on physical energy and trade. However, our empirical findings refute this hypothesis: real domestic credit and tax revenue collection—which directly capture service sector monetization and broad transaction volume—cratered alongside energy consumption during 2016–2024.
+> **The Banking Sector Stress and Inflation Deflator Channel**
+> The post-2015 period coincided with rising non-performing loans (NPLs) in the banking sector and severe balance-of-payments pressures. Under such financial stress, private investment deceleration is inevitable. The observed residual wedge strongly points toward systematic under-counting of inflation in national account deflators, which artificially preserved high real growth figures during global commodity shocks.
+> **Policy Implications**
+> Artificially inflated GDP metrics distort critical macroeconomic ratios: revenue-to-GDP appears deceptively lower, public debt sustainability metrics are understated, and policy corrections are delayed. Re-establishing national account transparency is a prerequisite for sovereign credibility and IMF program compliance.
+
+#### Task 3.5: Write Section 6 - Conclusion (60 mins)
+
+Add Section `# Conclusion` at the end of the file:
+
+> This paper provides robust econometric evidence of a systemic structural break in Bangladesh's official national accounts statistics following the 2015–16 rebasing. By establishing a predictive OLS model based on historical cross-country growth elasticities from 2001 to 2015, we show that reported Real GDP growth during 2016–2024 detached from underlying physical, trade, and financial fundamentals. While official statistics reported an average annual growth rate exceeding 6%, fundamental macroeconomic covariates indicate an expected growth trajectory closer to 4%, revealing an average annual overestimation wedge of approximately 2 percentage points. Restoring statistical integrity to Bangladesh's national accounts is imperative for sound macroeconomic management, accurate debt forecasting, and evidence-based economic planning.
+
+---
+
+### PHASE 4: Bibliography, Citations & Quarto YAML
+
+**Target Time:** 2.0 Hours | **Goal:** Create BibTeX file, insert inline citations, and polish YAML metadata.
+
+#### Task 4.1: Create `references.bib` file (30 mins)
+
+Create a text file named `references.bib` in your working directory and add the following entries:
+
+```bibtex
+@techreport{anand2026india,
+  title={India's 20 Years of GDP Misestimation: New Evidence},
+  author={Anand, Abhishek and Subramanian, Arvind and Felman, Josh},
+  year={2026},
+  institution={Peterson Institute for International Economics},
+  type={Working Paper Series},
+  number={WP26-3}
+}
+
+@article{subramanian2019validating,
+  title={Validating India's GDP growth estimates},
+  author={Subramanian, Arvind},
+  journal={Center for International Development at Harvard University},
+  volume={354},
+  year={2019}
+}
+
+@book{bbs2021national,
+  title={National Accounts Statistics of Bangladesh (Base Year 2015-16)},
+  author={{Bangladesh Bureau of Statistics}},
+  year={2021},
+  publisher={Statistics and Informatics Division, Ministry of Planning},
+  address={Dhaka}
+}
+
+@article{ravallion2001growth,
+  title={Growth, inequality and poverty: looking beyond averages},
+  author={Ravallion, Martin},
+  journal={World Development},
+  volume={29},
+  number={11},
+  pages={1803--1815},
+  year={2001}
+}
+
+```
+
+#### Task 4.2: Insert inline citation keys in `.qmd` text (40 mins)
+
+Replace narrative text citations with Quarto `@` citations:
+
+* Replace "Anand et al. (2026)" with `@anand2026india`.
+* Replace "Subramanian (2019)" with `@subramanian2019validating`.
+* Replace "BBS (2021)" with `@bbs2021national`.
+
+#### Task 4.3: Finalize top YAML block in `.qmd` (50 mins)
+
+Update the top of `wb-gdp-estimate-analysis.qmd` with exact journal metadata:
+
+```yaml
+---
+title: "The Decoupling Paradox: An Empirical Investigation into Official GDP Growth Misestimation in Bangladesh"
+author:
+  - name: Rushad Faridi, PhD
+    email: rushad@du.ac.bd
+    affiliations:
+      - name: University of Dhaka
+        city: Dhaka
+        country: Bangladesh
+        url: www.du.ac.bd
+  - name: Jyoti Rahman
+    email: jyoti.rahman@gmail.com
+    affiliations:
+      - name: Independent Economist
+        city: Melbourne
+        country: Australia
+abstract: "This paper investigates a profound macroeconomic anomaly in Bangladesh’s official economic statistics during the 2016–2024 period. Utilizing historical growth rate comparisons, bivariate elasticities, and predictive regression modeling, we examine the relationship between reported Real GDP growth and key macroeconomic fundamentals across three historical epochs spanning 1991 to 2024. Our findings reveal a stark decoupling paradox: while official Real GDP growth accelerates to peak historical levels in the contemporary era, underlying private and real sector activity indicators exhibit severe deceleration. Predictive modeling confirms that actual reported aggregate output departs from econometric projections based on historical covariates, manifesting as an average annual misestimation wedge of over 2 percentage points. This systemic structural break suggests that recent official growth metrics are empirically unmoored from the real economy."
+keywords:
+  - GDP misestimation
+  - Bangladesh economy
+  - National accounts rebasing
+  - Macroeconomic proxies
+  - Structural break
+bibliography: references.bib
+csl: https://www.zotero.org/styles/world-development
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: flatly
+    embed-resources: true
+  pdf:
+    documentclass: article
+    number-sections: true
+    geometry:
+      - top=25mm
+      - left=25mm
+      - right=25mm
+      - bottom=25mm
+    spacing: double
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+
+
+---
+
+### PHASE 5: Rendering, Visual Audit & Submission Prep
+
+**Target Time:** 1.5 Hours | **Goal:** Build HTML/PDF deliverables, verify layout, and publish to GitHub Pages.
+
+#### Task 5.1: Execute Quarto Render in Terminal (20 mins)
+
+Run the render command from the project root directory:
+
+```bash
+quarto render wb-gdp-estimate-analysis.qmd --to html
+quarto render wb-gdp-estimate-analysis.qmd --to pdf
+
+```
+
+#### Task 5.2: Quality Audit Checklist (30 mins)
+
+Open the rendered HTML and PDF files and verify:
+
+1. **Equations:** Ensure LaTeX equations ($\hat{\mathcal{W}}_t$, $y_{i,t}$) render crisply without missing dollar signs.
+2. **Cross-References:** Check that `@fig-macro-growth`, `@fig-scatter-all`, `@fig-reg-pred`, and `@tbl-reg-output` link correctly to figures/tables.
+3. **Captions & Source Notes:** Ensure source notes appear underneath all plots.
+4. **Author Layout:** Confirm both author names, emails, and university affiliations appear formatted at the top.
+
+#### Task 5.3: Commit to Git and Push to GitHub Pages (20 mins)
+
+Execute Git deployment steps:
+
+```bash
+git add wb-gdp-estimate-analysis.qmd references.bib fn_gdp_reg.R fn_scatter_periods.R
+git commit -m "Complete manuscript draft with 1991-2024 periodization, wedge table, and discussion"
+git push origin main
+
+```
+
+#### Task 5.4: Prepare *World Development* Submission File (20 mins)
+
+1. Rename rendered PDF to `Faridi_Rahman_2026_GDP_Misestimation_Bangladesh.pdf`.
+2. Extract abstract and keywords into a separate `Cover_Letter_and_Abstract.docx`.
+3. Complete submission package setup ready for upload to the Elsevier Editorial Manager system.

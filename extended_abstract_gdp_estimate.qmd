@@ -1,0 +1,83 @@
+---
+title: "Growth Without Its Fundamentals? Assessing Bangladesh's Reported GDP Growth"
+format:
+  html: default
+  docx:
+    number-sections: false
+execute:
+  echo: false
+  warning: false
+author:
+  - name: Rushad Faridi
+    degrees: PhD
+    email: rushad@du.ac.bd
+    corresponding: true
+    affiliations:
+      - name: University of Dhaka
+        department: Assistant Professor, Department of Economics
+        city: Dhaka
+        country: Bangladesh
+        url: www.du.ac.bd
+      - name: Panam Institute
+        department: Researcher
+        city: Dhaka
+        country: Bangladesh
+  - name: Jyoti Rahman
+    email: jyoti.rahman@gmail.com
+    affiliations:
+      - name: International Monetary Fund (IMF)
+        city: Melbourne
+        country: Australia
+      - name: Panam Institute
+        department: Executive Director
+        city: Dhaka
+        country: Bangladesh  
+---
+
+**Conference sub-theme:** 1. Macroeconomic Stability, Monetary Policy and Financial Systems (also relevant to 3. Institutions, Governance and the Political Economy of Development)
+
+**Keywords:** national accounts, GDP measurement, Bangladesh, energy consumption, growth regressions
+
+## Background and research problem
+
+Official statistics tell us that Bangladesh grew faster in the most recent years than at any earlier point in its modern history. Average annual real GDP growth rose from about 4.4 percent in the 1990s to 5.8 percent over 2001–2015, and reached 6.3 percent over 2016–2024. Read on its own, this is a story of steady acceleration.
+
+The trouble starts when GDP is set beside the rest of the economy. Over the very same years, most of the indicators that normally move with output slowed down, and some slowed sharply. Energy consumption growth fell from 7.3 percent to 3.7 percent. Electricity consumption growth fell from 9.6 percent to 6.4 percent. Export volume growth dropped from a peak of 12.6 percent to 3.2 percent, import volume growth fell to 4.6 percent, real domestic credit growth fell from 10.3 percent to 4.5 percent, and gross capital formation growth eased to 7.3 percent. Only government expenditure and real tax revenue, both growing at 7.5 percent, kept pace with or ran ahead of GDP.
+
+This is the puzzle the paper takes up. Either the economy has become able to grow faster on less energy, less trade and less credit, or the headline figure has drifted away from what is actually happening. Growth is a politically sensitive number, and national accounts in many developing economies are hard to verify, so the question deserves an empirical look rather than an assumption either way. We ask how large the gap is and whether it is unusual by international standards.
+
+## Objectives
+
+We pursue three objectives. First, to document how reported real GDP growth and a set of real-sector, external, financial and fiscal indicators have evolved across three periods (the 1990s to 2000, 2001–2015 and 2016–2024). Second, to test whether the historical relationship between GDP growth and those indicators has changed in the latest period. Third, to put a number on the gap: how far does reported growth sit above what the fundamentals would predict, using a benchmark that does not rely on Bangladesh's own recent data?
+
+## Data and analytical approach
+
+The analysis draws on a cross-country annual panel built from CEIC, the World Development Indicators and the Bangladesh Bureau of Statistics, covering 1995 onwards for a large set of economies, with Bangladesh identified separately. The indicators are the annual growth rates of government expenditure, real tax revenue, electricity consumption, energy consumption, real domestic credit, export volume, import volume and gross capital formation.
+
+Methodology of this study can be depicted in three steps. The first is descriptive: period averages of growth rates for Bangladesh. The second is bivariate: scatter plots of GDP growth against each indicator, by period, with fitted lines, to see whether the historical co-movement survives. The third is predictive. We estimate an OLS model of real GDP growth on real tax revenue growth, energy consumption growth, real domestic credit growth, export volume growth and import volume growth, using the 2001–2015 observations for all countries except Bangladesh (686 country-years). Leaving Bangladesh out is deliberate. It keeps the benchmark from being shaped by the series we are testing. We then apply the estimated coefficients to Bangladesh's actual 2016–2024 indicator values to obtain a predicted growth path, and define the difference between reported and predicted growth as the misestimation wedge.
+
+As a check on the design, we re-estimate the same model with Bangladesh included. The coefficients, standard errors and fit barely move, so Bangladesh's own 2001–2015 data were consistent with the international relationship and the benchmark is not an artefact of the exclusion.
+
+## Main findings
+
+**Divergence in averages.** Reported GDP growth rises across the three periods while nearly every non-fiscal indicator falls in the last one. Taken alone this is suggestive of some anomaly in measurement of GDP growth.
+
+**Breakdown of the historical relationship.** In the scatter plots, the 2016–2024 observations sit up and to the left of the earlier ones: higher GDP growth with much lower growth in energy use, trade and credit. In the 1990s and 2000s, a growth rate near 6 percent usually came alongside double-digit growth in exports or credit. In the latest period the same growth appears with a small fraction of that.
+
+**The benchmark model fits well.** The cross-country model explains roughly 60 percent of the variation in GDP growth (R-squared of 0.601, RMSE of 2.31 percentage points). All five coefficients are positive and significant at the 0.1 percent level. Energy consumption growth carries the largest coefficient (0.218), followed by import volume growth (0.098), real tax revenue growth (0.094), export volume growth (0.075) and real domestic credit growth (0.042). These magnitudes are plausible and in line with the view that physical energy and trade inputs are hard to do without when output expands.
+
+**A large positive wedge.** For 2001–2015, Bangladesh's reported growth lies close to the model's prediction. For 2016–2024, predicted growth falls to roughly 5 percent while reported growth rises above 6 percent, so the observation falls well outside the confidence band around the fitted relationship. The average annual wedge is 2.17 percentage points, with reported growth averaging 6.27 percent against a predicted 4.38 percent.
+
+## Interpretation and limits
+
+A positive wedge is not proof of misreporting. Services, informal activity and remittance-driven consumption may use less energy per unit of output than manufacturing; energy-saving technology and supply constraints may have altered the energy-output link; and we rely on only five indicators, so omitted variables could matter.
+
+Even so, the size and persistence of the gap make these explanations hard to sustain on their own. Energy consumption is among the harder series to inflate, carries the largest weight in the benchmark model, and slowed by half. Two readings remain: growth has leaned on public spending not matched by private activity, or real GDP has been overstated in the national accounts. The evidence leans toward the second, though we treat it as a hypothesis for further work, not a conclusion.
+
+## Contribution and policy relevance
+
+The paper applies a simple cross-country benchmark to Bangladesh's recent growth record using a design that avoids circularity, reports the gap in a form others can replicate from public sources, and narrows the set of explanations that deserve serious attention.
+
+The stakes are practical. Growth figures feed into debt sustainability assessments, fiscal targets, monetary policy and sovereign ratings. If reported growth has run ahead of the economy, policy built on it may be too optimistic about debt capacity, tax effort and private demand. For the conference theme of rethinking growth and economic governance, the findings point to independent verification of national accounts and greater transparency about methods and source data.
+
+The full paper will test alternative covariate sets, compare Bangladesh with peer economies, and check that the wedge is robust to the benchmark period and estimation method.

@@ -9,6 +9,8 @@ Welcome to the central hub for this project. Below you will find links to the va
 
 * [Analysis on GDP estimation](wb-gdp-estimate-analysis.html)
 
+* [Extended Abstract](extended_abstract_gdp_estimate.html) 
+
 
 ### About This Project
 This repository utilizes data from CEIC, the World Development Indicators (WDI), and the Bangladesh Bureau of Statistics to model and visualize economic trends.
